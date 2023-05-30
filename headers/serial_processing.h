@@ -2,9 +2,9 @@
 #include "matrix_utils.h"
 
 void alloc_matrix_single_threaded(struct matrix* m) {
-  m->matrix = (double **)malloc(m->num_rows * sizeof(double *));
+  m->matrix = (double**)malloc(m->num_rows * sizeof(double*));
   for (int i = 0; i < m->num_rows; i++) {
-        m->matrix[i] = (double *)malloc(m->num_cols * sizeof(double));
+        m->matrix[i] = (double*)malloc(m->num_cols * sizeof(double));
   }
 }
 
@@ -50,12 +50,12 @@ struct matrix compute_matrix_single_threaded(struct matrix* a, struct matrix* b_
 }
 
 void run_matrix_mult_single_threaded(
-  struct matrix* a, struct matrix* b, struct matrix* b_transposed) {
+  struct matrix* a, struct matrix* b, struct matrix* b_transposed,
+  double* A, double* B) {
   alloc_matrix_single_threaded(a);
   alloc_matrix_single_threaded(b);
-
   // Fill the matrix values with either 2500 or 1048576 sizes.
-  fill_matrices(a, b);
+  fill_matrices(a, b, A, B);
 
   // Make the transposition of matrix b since it's accessing will be more efficient
   // on the multiplication algorithm.
