@@ -1,8 +1,10 @@
 // A00824335 - Ricardo Chapa
 // A01280562 - Miguel Elizondo
 // Final Project
-// Compilation: gcc -std=c99 matrix_multiplication.c -o matrix_multiplication
+// Compilation: /usr/local/gcc9.3/bin/gcc -mavx512f -std=c99 matrix_multiplication.c -o matrix_multiplication
+#include "headers/matrix_utils.h"
 #include "headers/serial_processing.h"
+#include "headers/intrinsics_processing.h"
 
 double* A = NULL;
 double* B = NULL;
@@ -110,7 +112,36 @@ int main() {
   if (get_and_validate_rows_and_cols(&a.num_rows, &a.num_cols, &b.num_rows, &b.num_cols)) {
     return 1;
   }
-  run_matrix_mult_single_threaded(&a, &b, &b_transposed, A, B);
+
+  struct matrix single_thread_res = 
+    run_matrix_mult_single_threaded(&a, &b, &b_transposed, A, B);
+
+  freealloc_single_threaded(&a);
+  freealloc_single_threaded(&b);
+  freealloc_single_threaded(&b_transposed);
+
+  struct matrix intrinsic_proc_res = 
+    run_matrix_mult_intrinsic_processed(&a, &b, &b_transposed, A, B);
+
+  int is_different = 0;
+  for (int i = 0; i < single_thread_res.num_rows; ++i) {
+    for (int j = 0; j < single_thread_res.num_cols; ++j) { 
+      if (fabs(single_thread_res.matrix[i][j] - intrinsic_proc_res.matrix[i][j]) > 1e-10) {
+        printf("%.13g %.13g\n", single_thread_res.matrix[i][j], intrinsic_proc_res.matrix[i][j]);
+        is_different++;
+        break;
+      }
+    }
+    if (is_different) break;
+  }
+  printf("Matrix are different: %d\n", is_different);
+
+  freealloc_intrinsic_processed(&a);
+  freealloc_intrinsic_processed(&b);
+  freealloc_intrinsic_processed(&b_transposed);
+
+  freealloc_single_threaded(&single_thread_res);
+  freealloc_intrinsic_processed(&intrinsic_proc_res);
 
   return 0;
 }

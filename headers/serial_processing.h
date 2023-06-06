@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include "matrix_utils.h"
-
 void alloc_matrix_single_threaded(struct matrix* m) {
   m->matrix = (double**)malloc(m->num_rows * sizeof(double*));
   for (int i = 0; i < m->num_rows; i++) {
@@ -49,7 +46,7 @@ struct matrix compute_matrix_single_threaded(struct matrix* a, struct matrix* b_
   return res_matrix;
 }
 
-void run_matrix_mult_single_threaded(
+struct matrix run_matrix_mult_single_threaded(
   struct matrix* a, struct matrix* b, struct matrix* b_transposed,
   double* A, double* B) {
   alloc_matrix_single_threaded(a);
@@ -65,11 +62,5 @@ void run_matrix_mult_single_threaded(
   alloc_matrix_single_threaded(b_transposed);  
   tranpose_matrix(b, b_transposed);
 
-  struct matrix res_matrix = compute_matrix_single_threaded(a, b_transposed);
-  //print_matrix(&res_matrix);
-
-  freealloc_single_threaded(a);
-  freealloc_single_threaded(b);
-  freealloc_single_threaded(b_transposed);
-  freealloc_single_threaded(&res_matrix);
+  return compute_matrix_single_threaded(a, b_transposed);
 }
